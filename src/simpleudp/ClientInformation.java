@@ -1,7 +1,6 @@
 package simpleudp;
 
 import java.net.InetAddress;
-import java.net.SocketAddress;
 import java.util.Objects;
 
 public class ClientInformation {
@@ -12,8 +11,9 @@ public class ClientInformation {
     private final long firstRequest;
     private long lastRequest;
     private boolean banned;
+    private long banDuration;
 
-    public ClientInformation(InetAddress inetAddress, long firstRequest) {
+    public ClientInformation(InetAddress inetAddress, long firstRequest, long banDuration) {
         this.inetAddress = inetAddress;
         totalRequests = 0;
         totalRejectedRequests = 0;
@@ -21,6 +21,7 @@ public class ClientInformation {
         this.firstRequest = firstRequest;
         lastRequest = 0;
         banned = false;
+        this.banDuration = banDuration;
     }
 
     public InetAddress getInetAddress() {
@@ -73,8 +74,19 @@ public class ClientInformation {
         this.banned = banned;
     }
 
+    public long getBanDuration() {
+        return banDuration;
+    }
+
+    public void setBanDuration(long banDuration) {
+        this.banDuration = banDuration;
+    }
+
     public double averageRequestsPerSecond() {
-        return (double)(totalRequests) * 1000.0 / (double)(lastRequest - firstRequest);
+        double averageRequestsPerSecond = (double) (totalRequests) * 1000.0 / (double) (lastRequest - firstRequest);
+        if (averageRequestsPerSecond == Double.POSITIVE_INFINITY)
+            averageRequestsPerSecond = 0.0;
+        return averageRequestsPerSecond;
     }
 
     @Override
@@ -82,7 +94,6 @@ public class ClientInformation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ClientInformation that = (ClientInformation) o;
-        return rejectedRequests == that.rejectedRequests &&
-                Objects.equals(inetAddress, that.inetAddress);
+        return Objects.equals(inetAddress, that.inetAddress);
     }
 }
