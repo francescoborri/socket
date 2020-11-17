@@ -83,9 +83,9 @@ public class ClientInformation {
     }
 
     public double averageRequestsPerSecond() {
-        double averageRequestsPerSecond = (double) (totalRequests) * 1000.0 / (double) (lastRequest - firstRequest);
-        if (averageRequestsPerSecond == Double.POSITIVE_INFINITY)
-            averageRequestsPerSecond = 0.0;
+        double averageRequestsPerSecond;
+        if (totalRequests == 1) averageRequestsPerSecond = 0.0;
+        else averageRequestsPerSecond = (double) (totalRequests) * 1000.0 / (double) (lastRequest - firstRequest);
         return averageRequestsPerSecond;
     }
 

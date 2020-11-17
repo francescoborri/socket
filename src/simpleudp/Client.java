@@ -6,21 +6,24 @@ import java.nio.charset.StandardCharsets;
 
 public class Client extends Thread {
     private final DatagramSocket socket;
-    private final byte[] answerBuffer = new byte[8192];
-    private final DatagramPacket answer = new DatagramPacket(answerBuffer, answerBuffer.length);
+    private final DatagramPacket answer;
     private final InetAddress inetAddress;
     private final int port;
     private final String requestData;
     private final boolean spam;
+    private final int pause;
     private final int requests;
 
-    public Client(String host, int port, String requestData, boolean spam, int requests) throws SocketException, UnknownHostException {
+    public Client(String host, int port, String requestData, boolean spam, int pause, int requests) throws SocketException, UnknownHostException {
         socket = new DatagramSocket();
         socket.setSoTimeout(1000);
+        byte[] answerBuffer = new byte[8192];
+        answer = new DatagramPacket(answerBuffer, answerBuffer.length);
         this.inetAddress = InetAddress.getByName(host);
         this.port = port;
         this.requestData = requestData;
         this.spam = spam;
+        this.pause = pause;
         this.requests = requests;
     }
 
@@ -28,7 +31,9 @@ public class Client extends Thread {
         if (spam) for (int i = 0; i < requests; i++) {
             try {
                 System.out.println("Answer: " + this.sendAndReceive());
-            } catch (IOException ignored) { }
+                if (pause > 0)
+                    sleep(pause);
+            } catch (IOException | InterruptedException ignored) { }
         } else try {
             System.out.println("Answer: " + this.sendAndReceive());
         } catch (IOException exception) {
@@ -57,24 +62,26 @@ public class Client extends Thread {
 
     public static void main(String[] args) throws IOException {
         String host, data;
-        int port, requests;
+        int port, requests, pause;
         boolean spam;
 
-        if (args.length != 5) {
+        if (args.length != 6) {
             host = "127.0.0.1";
             port = 8142;
             data = "Hello, world!";
-            spam = false;
+            spam = true;
+            pause = 499;
             requests = Integer.MAX_VALUE;
         } else {
             host = args[0];
             port = Integer.parseInt(args[1]);
             data = args[2];
             spam = Boolean.parseBoolean(args[3]);
-            requests = Integer.parseInt(args[4]);
+            pause = Integer.parseInt(args[4]);
+            requests = Integer.parseInt(args[5]);
         }
 
-        Client client = new Client(host, port, data, spam, requests);
+        Client client = new Client(host, port, data, spam, pause, requests);
         client.start();
     }
 }

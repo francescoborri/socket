@@ -13,7 +13,7 @@ public class Server extends Thread {
     private final DatagramPacket request;
 
     public Server(int port) throws SocketException {
-        clientManager = new ClientManager(500, 60000, 10);
+        clientManager = new ClientManager(500, 60000, 25, 1000);
         socket = new DatagramSocket(port);
         socket.setSoTimeout(0);
         byte[] requestBuffer = new byte[8192];
@@ -43,8 +43,8 @@ public class Server extends Thread {
                     answerStatus = "Accepted.";
                 } else {
                     if (clientInformation.isBanned()) {
-                        answerData = String.format("You are banned for %d minute.", clientInformation.getBanDuration() / 60000);
-                        answerStatus = String.format("Banned for %d minute.", clientInformation.getBanDuration() / 60000);
+                        answerData = String.format("You are banned for %.2f minute.", clientInformation.getBanDuration() / 60000.0);
+                        answerStatus = String.format("Banned for %.2f minute.", clientInformation.getBanDuration() / 60000.0);
                     } else {
                         answerData = "Request blocked.";
                         answerStatus = "Blocked.";
