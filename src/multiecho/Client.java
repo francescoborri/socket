@@ -53,7 +53,7 @@ public class Client extends Thread {
         try {
             socket.receive(reply);
             String replyMessage = new String(reply.getData(), 0, reply.getLength(), StandardCharsets.UTF_8);
-            System.out.printf("CLIENT %s:%d RECEIVED [%dB] - %s\n", this.getName(), socket.getLocalPort(), reply.getLength(), replyMessage);
+            System.out.printf("CLIENT %s:%d RECEIVED : %s [%dB]\n", this.getName(), socket.getLocalPort(), replyMessage, reply.getLength());
         } catch (IOException exception) {
             System.err.println(exception.getMessage());
         }
