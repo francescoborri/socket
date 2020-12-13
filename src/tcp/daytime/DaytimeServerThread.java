@@ -44,7 +44,7 @@ public class DaytimeServerThread extends Thread {
             request = in.readLine();
             reply = manage(request);
             write(reply);
-        } while (request != null && !request.equals("CLOSE_SOCKET") && !request.equals("CLOSE_SERVER"));
+        } while (request != null && !request.equals("CLOSE_CONNECTION") && !request.equals("CLOSE_SERVER"));
 
         return request;
     }
@@ -64,8 +64,8 @@ public class DaytimeServerThread extends Thread {
             case "TIME":
                 reply = timeFormatter.format(LocalDateTime.now());
                 break;
-            case "CLOSE_SOCKET":
-                reply = "CLOSING SOCKET...";
+            case "CLOSE_CONNECTION":
+                reply = "CLOSING CONNECTION...";
                 break;
             case "CLOSE_SERVER":
                 reply = "CLOSING SERVER...";
