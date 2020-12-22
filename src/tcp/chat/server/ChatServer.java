@@ -1,4 +1,6 @@
-package tcp.chat;
+package tcp.chat.server;
+
+import tcp.chat.client.ChatClientInformation;
 
 import java.io.*;
 import java.net.InetSocketAddress;

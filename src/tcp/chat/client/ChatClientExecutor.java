@@ -1,4 +1,4 @@
-package tcp.chat;
+package tcp.chat.client;
 
 import java.io.IOException;
 import java.util.Scanner;
