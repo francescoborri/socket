@@ -63,6 +63,10 @@ public class ChatServer extends Thread {
         return connections;
     }
 
+    public ChatServerCommandLine getChatServerCommandLine() {
+        return chatServerCommandLine;
+    }
+
     public void broadcast(InetSocketAddress source, String message) {
         for (Map.Entry<InetSocketAddress, ChatServerThread> entry : connections.entrySet()) {
             if (entry.getKey().equals(source))

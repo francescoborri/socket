@@ -11,12 +11,12 @@ import java.util.Scanner;
 
 public class ChatServerCommandLine extends Thread {
     private final ChatServer chatServer;
-    private final Scanner cli;
+    private final Scanner scanner;
 
     public ChatServerCommandLine(ChatServer chatServer) {
         super("chat-server-cli");
         this.chatServer = chatServer;
-        cli = new Scanner(System.in);
+        scanner = new Scanner(System.in);
     }
 
     public void run() {
@@ -24,7 +24,7 @@ public class ChatServerCommandLine extends Thread {
             String cmd;
             do {
                 System.out.printf("[%s]: ", getPrefix());
-                cmd = cli.nextLine();
+                cmd = scanner.nextLine();
                 manage(cmd);
             } while (!cmd.equals("shutdown") && !Thread.interrupted());
         } catch (IOException exception) {
@@ -32,7 +32,8 @@ public class ChatServerCommandLine extends Thread {
         }
     }
 
-    private void manage(String cmd) throws IOException {
+    public void manage(String cmd) throws IOException {
+        System.out.print("\r");
         switch (cmd) {
             case "shutdown":
                 chatServer.close();

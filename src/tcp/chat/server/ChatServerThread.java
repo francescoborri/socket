@@ -35,7 +35,7 @@ public class ChatServerThread extends Thread {
             close();
 
             if (last != null && last.equals("shutdown"))
-                server.close();
+                server.getChatServerCommandLine().manage(last);
         } catch (IOException ignored) {
         }
     }
