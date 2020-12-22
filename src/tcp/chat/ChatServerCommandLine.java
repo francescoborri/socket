@@ -21,7 +21,7 @@ public class ChatServerCommandLine extends Thread {
         try {
             String cmd;
             do {
-                System.out.printf("[%s] ", getPrefix());
+                System.out.printf("[%s]: ", getPrefix());
                 cmd = cli.nextLine();
                 manage(cmd);
             } while (!cmd.equals("shutdown") && !Thread.interrupted());

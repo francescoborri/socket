@@ -20,7 +20,7 @@ public class ChatClient {
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
         this.name = name;
-        prefix = "[you] ";
+        prefix = "[you]: ";
 
         new ChatClientReader(this).start();
         new ChatClientWriter(this).start();

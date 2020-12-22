@@ -18,8 +18,10 @@ public class ChatClientWriter extends Thread {
             do {
                 System.out.print(chatClient.getPrefix());
                 request = scanner.nextLine();
-                chatClient.send(request);
-            } while (!request.equals("exit") && !request.equals("shutdown"));
+
+                if (!request.isEmpty() && !request.equals("\n"))
+                    chatClient.send(request);
+            } while (!request.equals("exit") && !request.equals("shutdown") && !Thread.interrupted());
 
             chatClient.disconnect();
         } catch (IOException ignored) {

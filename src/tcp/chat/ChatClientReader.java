@@ -16,7 +16,7 @@ public class ChatClientReader extends Thread {
                 String message = chatClient.receive();
                 if (message == null)
                     break;
-                System.out.printf("\n%s\n%s", message, chatClient.getPrefix());
+                System.out.printf("\r%s\n%s", message, chatClient.getPrefix());
             }
         } catch (IOException ignored) {
         }
