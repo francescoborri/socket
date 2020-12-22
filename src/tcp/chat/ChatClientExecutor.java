@@ -16,16 +16,6 @@ public class ChatClientExecutor {
         System.out.print("Your name: ");
         String name = scanner.nextLine();
 
-        ChatClient chatClient = new ChatClient(serverAddress, serverPort, name);
-        chatClient.start();
-
-        String request;
-        do {
-            System.out.print("[you] ");
-            request = scanner.nextLine();
-            chatClient.send(request);
-        } while (!request.equals("exit") && !request.equals("shutdown"));
-
-        chatClient.disconnect();
+        new ChatClient(serverAddress, serverPort, name);
     }
 }

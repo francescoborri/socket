@@ -7,39 +7,36 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-public class ChatClient extends Thread {
+public class ChatClient {
     private final Socket socket;
     private final BufferedReader in;
     private final PrintWriter out;
+    private final String name;
+    private final String prefix;
 
     public ChatClient(String serverAddress, int serverPort, String name) throws IOException {
-        super(name);
-
         socket = new Socket();
         socket.connect(new InetSocketAddress(serverAddress, serverPort));
-
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
+        this.name = name;
+        prefix = "[you] ";
 
-        send(getName());
+        new ChatClientReader(this).start();
+        new ChatClientWriter(this).start();
+
+        send(name);
     }
 
-    public void run() {
-        try {
-            while (!Thread.interrupted()) {
-                String message = receive();
+    public String getName() {
+        return name;
+    }
 
-                if (message == null)
-                    break;
-
-                System.out.println(message);
-            }
-        } catch (IOException ignored) {
-        }
+    public String getPrefix() {
+        return prefix;
     }
 
     public void disconnect() throws IOException {
-        this.interrupt();
         socket.shutdownOutput();
         socket.close();
     }

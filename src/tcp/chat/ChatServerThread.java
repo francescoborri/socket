@@ -23,7 +23,7 @@ public class ChatServerThread extends Thread {
 
         server.broadcast(
                 clientInformation.getInetSocketAddress(),
-                (String.format("%s joined the chat\n", clientInformation.getName()))
+                (String.format("%s joined the chat", clientInformation.getName()))
         );
     }
 
@@ -65,7 +65,7 @@ public class ChatServerThread extends Thread {
             default:
                 server.broadcast(
                         clientInformation.getInetSocketAddress(),
-                        String.format("[%s]: %s\n", getName(), request)
+                        String.format("[%s]: %s", getName(), request)
                 );
                 break;
         }
@@ -77,7 +77,7 @@ public class ChatServerThread extends Thread {
         socket.close();
         server.broadcast(
                 clientInformation.getInetSocketAddress(),
-                String.format("%s left the chat\n", clientInformation.getName())
+                String.format("%s left the chat", clientInformation.getName())
         );
     }
 }
