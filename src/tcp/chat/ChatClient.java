@@ -7,55 +7,53 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-public class ChatClient {
-    private final InetSocketAddress serverSocketAddress;
+public class ChatClient extends Thread {
     private final Socket socket;
-    private final String name;
-    private BufferedReader in;
-    private PrintWriter out;
-    private final int timeout;
+    private final BufferedReader in;
+    private final PrintWriter out;
+    private static final int timeout = 1000;
 
     public ChatClient(String serverAddress, int serverPort, String name) throws IOException {
-        serverSocketAddress = new InetSocketAddress(serverAddress, serverPort);
+        super(name);
+
         socket = new Socket();
-        this.name = name;
-        in = null;
-        out = null;
-        timeout = 1000;
         socket.setSoTimeout(timeout);
-    }
+        socket.connect(new InetSocketAddress(serverAddress, serverPort), timeout);
 
-    public String getName() {
-        return name;
-    }
-
-    public void connect() throws IOException {
-        if (socket.isConnected())
-            throw new IOException();
-        socket.connect(serverSocketAddress, timeout);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
 
-        send(name, false);
+        send(getName());
+    }
+
+    public void run() {
+        try {
+            while (!Thread.interrupted()) {
+                String message = receive();
+                System.out.println("\n" + message);
+            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
     }
 
     public void disconnect() throws IOException {
         if (!socket.isConnected())
             throw new IOException();
-        in = null;
-        out = null;
+
+        this.interrupt();
         socket.shutdownOutput();
         socket.close();
     }
 
-    public String send(String request, boolean waitForReply) throws IOException {
+    public void send(String request) throws IOException {
         if (!socket.isConnected())
             throw new IOException();
+
         out.println(request);
-        return waitForReply ? in.readLine() : null;
     }
 
-    public boolean isConnected() {
-        return socket.isConnected();
+    public String receive() throws IOException {
+        return in.readLine();
     }
 }

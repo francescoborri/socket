@@ -17,13 +17,12 @@ public class ChatClientExecutor {
         String name = scanner.nextLine();
 
         ChatClient chatClient = new ChatClient(serverAddress, serverPort, name);
-        chatClient.connect();
 
         String request;
         do {
             System.out.print("[you]: ");
             request = scanner.nextLine();
-            chatClient.send(request, false);
+            chatClient.send(request);
         } while (!request.equals("exit") && !request.equals("shutdown"));
 
         chatClient.disconnect();

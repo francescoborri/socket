@@ -1,8 +1,10 @@
 package tcp.chat;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 public class ChatServerCommandLine extends Thread {
     private final ChatServer chatServer;
@@ -18,7 +20,7 @@ public class ChatServerCommandLine extends Thread {
         try {
             String cmd;
             do {
-                System.out.printf("[%s] ", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+                System.out.printf("[%s] ", getPrefix());
                 cmd = cli.readLine();
                 manage(cmd);
             } while (!cmd.equals("shutdown") && !Thread.interrupted());
@@ -27,27 +29,43 @@ public class ChatServerCommandLine extends Thread {
         }
     }
 
-    public void clear() {
-        System.out.print("\b\b\b\b\b\b\b\b");
-    }
-
     private void manage(String cmd) throws IOException {
         switch (cmd) {
             case "shutdown":
                 chatServer.close();
                 break;
             case "recap":
-                chatServer.recap();
+                recap();
                 break;
-            case "who_is_online":
-                chatServer.online();
-                break;
-            default:
+            case "online":
+                online();
                 break;
         }
     }
 
+    public String getPrefix() {
+        return LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
+    }
+
+    public void recap() {
+        for (Map.Entry<InetSocketAddress, ChatClientInformation> entry : chatServer.getClients().entrySet()) {
+            System.out.printf("[%s | %s:%d] sent %d request(s)\n",
+                    entry.getValue().getName(),
+                    entry.getValue().getInetSocketAddress().getAddress().getCanonicalHostName(),
+                    entry.getValue().getInetSocketAddress().getPort(),
+                    entry.getValue().getRequests()
+            );
+        }
+    }
+
+    public void online() {
+        for (Map.Entry<InetSocketAddress, ChatServerThread> entry : chatServer.getConnections().entrySet()) {
+            System.out.printf("%s is online\n", entry.getValue().getName());
+        }
+    }
+
     public void close() throws IOException {
+        System.out.println("shutting down server...");
         this.interrupt();
     }
 }

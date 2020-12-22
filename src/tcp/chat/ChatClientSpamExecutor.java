@@ -17,13 +17,11 @@ public class ChatClientSpamExecutor extends Thread {
 
     public void run() {
         try {
-            chatClient.connect();
-
             while (true) {
                 boolean close = ThreadLocalRandom.current().nextDouble() <= closingPercentage;
 
                 String request = close ? "exit" : requests[ThreadLocalRandom.current().nextInt(requests.length)];
-                chatClient.send(request, false);
+                chatClient.send(request);
                 System.out.printf("[%s]: %s\n", chatClient.getName(), request);
 
                 if (close)
@@ -58,7 +56,7 @@ public class ChatClientSpamExecutor extends Thread {
 
             for (int i = 0; i < numberOfClients; i++) {
                 ChatClient chatClient = new ChatClient(serverAddress, serverPort, String.format("client-%d", i));
-                ChatClientSpamExecutor chatClientSpamExecutor = new ChatClientSpamExecutor(chatClient, requests, 0.0001);
+                ChatClientSpamExecutor chatClientSpamExecutor = new ChatClientSpamExecutor(chatClient, requests, 0.01);
                 chatClientSpamExecutor.start();
             }
         } catch (IOException exception) {
