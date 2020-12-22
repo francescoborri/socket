@@ -12,7 +12,6 @@ public class ChatServer extends Thread {
     private final HashMap<InetSocketAddress, ChatClientInformation> clients;
     private final HashMap<InetSocketAddress, ChatServerThread> connections;
     private final ChatServerCommandLine chatServerCommandLine;
-    public final static int timeout = 1000;
 
     public ChatServer(String name, int port) throws IOException {
         super(name);
@@ -20,7 +19,6 @@ public class ChatServer extends Thread {
         server = new ServerSocket(port);
         clients = new HashMap<>();
         connections = new HashMap<>();
-        server.setSoTimeout(timeout);
         chatServerCommandLine = new ChatServerCommandLine(this);
 
         chatServerCommandLine.start();

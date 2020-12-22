@@ -5,15 +5,16 @@ import java.net.InetSocketAddress;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Scanner;
 
 public class ChatServerCommandLine extends Thread {
     private final ChatServer chatServer;
-    private final BufferedReader cli;
+    private final Scanner cli;
 
     public ChatServerCommandLine(ChatServer chatServer) {
         super("chat-server-cli");
         this.chatServer = chatServer;
-        cli = new BufferedReader(new InputStreamReader(System.in));
+        cli = new Scanner(System.in);
     }
 
     public void run() {
@@ -21,7 +22,7 @@ public class ChatServerCommandLine extends Thread {
             String cmd;
             do {
                 System.out.printf("[%s] ", getPrefix());
-                cmd = cli.readLine();
+                cmd = cli.nextLine();
                 manage(cmd);
             } while (!cmd.equals("shutdown") && !Thread.interrupted());
         } catch (IOException exception) {

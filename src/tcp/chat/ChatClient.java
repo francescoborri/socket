@@ -11,14 +11,12 @@ public class ChatClient extends Thread {
     private final Socket socket;
     private final BufferedReader in;
     private final PrintWriter out;
-    private static final int timeout = 1000;
 
     public ChatClient(String serverAddress, int serverPort, String name) throws IOException {
         super(name);
 
         socket = new Socket();
-        socket.setSoTimeout(timeout);
-        socket.connect(new InetSocketAddress(serverAddress, serverPort), timeout);
+        socket.connect(new InetSocketAddress(serverAddress, serverPort));
 
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
@@ -30,26 +28,23 @@ public class ChatClient extends Thread {
         try {
             while (!Thread.interrupted()) {
                 String message = receive();
-                System.out.println("\n" + message);
+
+                if (message == null)
+                    break;
+
+                System.out.println(message);
             }
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        } catch (IOException ignored) {
         }
     }
 
     public void disconnect() throws IOException {
-        if (!socket.isConnected())
-            throw new IOException();
-
         this.interrupt();
         socket.shutdownOutput();
         socket.close();
     }
 
     public void send(String request) throws IOException {
-        if (!socket.isConnected())
-            throw new IOException();
-
         out.println(request);
     }
 
