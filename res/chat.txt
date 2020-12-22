@@ -1,0 +1,8 @@
+fra joined the chat
+[fra]: ciao cacca
+[fra]: bubu
+[fra]: chicchirichi
+fra left the chat
+gugu joined the chat
+[gugu]: ciao
+gugu left the chat

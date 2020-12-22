@@ -4,32 +4,34 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class ChatServerThread extends Thread {
     private final ChatServer server;
+    private final ChatClientInformation clientInformation;
     private final Socket socket;
     private final BufferedReader in;
     private final PrintWriter out;
     private boolean closed;
 
-    public ChatServerThread(String name, ChatServer server, Socket socket) throws IOException {
+    public ChatServerThread(String name, ChatServer server, Socket socket, ChatClientInformation clientInformation) throws IOException {
         super(name);
         this.server = server;
         this.socket = socket;
+        this.clientInformation = clientInformation;
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
         closed = false;
+
+        server.log(String.format("%s joined the chat\n", clientInformation.getName()));
     }
 
     public void run() {
         try {
             String last = receive();
-
             close();
 
-            if (last != null && last.equals("CLOSE_SERVER"))
+            if (last != null && last.equals("shutdown"))
                 server.close();
         } catch (IOException exception) {
             exception.printStackTrace();
@@ -41,31 +43,35 @@ public class ChatServerThread extends Thread {
 
         do {
             request = in.readLine();
-            log(request);
+            clientInformation.newRequest();
+
             reply = manage(request);
             reply(reply);
-        } while (request != null && !request.equals("CLOSE_CONNECTION") && !request.equals("CLOSE_SERVER"));
+        } while (request != null && !request.equals("exit") && !request.equals("shutdown"));
 
         return request;
     }
 
-    public String manage(String request) {
+    public String manage(String request) throws IOException {
         String reply;
 
         if (request == null)
             return null;
 
         switch (request) {
-            case "CLOSE_CONNECTION":
-                reply = "CLOSING CONNECTION...";
+            case "exit":
+                reply = "closing connection...";
                 break;
-            case "CLOSE_SERVER":
-                reply = "CLOSING SERVER...";
+            case "shutdown":
+                reply = "shutdown server...";
                 break;
             default:
-                reply = "OK";
+                reply = "ok";
                 break;
         }
+
+        if (reply.equals("ok"))
+            log(request);
 
         return reply;
     }
@@ -79,15 +85,14 @@ public class ChatServerThread extends Thread {
         socket.shutdownOutput();
         socket.close();
         closed = true;
+        server.log(String.format("%s left the chat\n", clientInformation.getName()));
     }
 
-    public void log(String request) {
-        String clientAddress = ((InetSocketAddress) socket.getRemoteSocketAddress()).getHostName();
-        int clientPort = ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort();
-        System.out.printf("[%s:%d]: %s\n", clientAddress, clientPort, request);
+    public void log(String request) throws IOException {
+        server.log(String.format("[%s]: %s\n", getName(), request));
     }
 
-    public boolean isClosed() {
-        return closed;
+    public boolean isOpened() {
+        return !closed;
     }
 }

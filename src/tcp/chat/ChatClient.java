@@ -35,6 +35,8 @@ public class ChatClient {
         socket.connect(serverSocketAddress, timeout);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
+
+        send(name, false);
     }
 
     public void disconnect() throws IOException {
@@ -46,10 +48,14 @@ public class ChatClient {
         socket.close();
     }
 
-    public String send(String request) throws IOException {
+    public String send(String request, boolean waitForReply) throws IOException {
         if (!socket.isConnected())
             throw new IOException();
         out.println(request);
-        return in.readLine();
+        return waitForReply ? in.readLine() : null;
+    }
+
+    public boolean isConnected() {
+        return socket.isConnected();
     }
 }
