@@ -38,7 +38,7 @@ public class ChatServerThread extends Thread {
         }
 
         try {
-            close();
+            close(true);
             if (last != null && last.equals("shutdown"))
                 server.getChatServerCommandLine().manage(last);
         } catch (IOException ignored) {
@@ -78,8 +78,8 @@ public class ChatServerThread extends Thread {
         }
     }
 
-    public void close() throws IOException {
-        server.connectionOnClose(clientInformation.getInetSocketAddress());
+    public void close(boolean remove) throws IOException {
+        server.connectionOnClose(clientInformation.getInetSocketAddress(), remove);
         socket.shutdownOutput();
         socket.close();
         server.broadcast(

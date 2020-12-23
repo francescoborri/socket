@@ -76,16 +76,16 @@ public class ChatServer extends Thread {
         }
     }
 
-    public void connectionOnClose(InetSocketAddress key) {
-        connections.remove(key);
+    public void connectionOnClose(InetSocketAddress key, boolean remove) {
+        if (remove)
+            connections.remove(key);
     }
 
     public void close() throws IOException {
         this.interrupt();
 
-        for (Map.Entry<InetSocketAddress, ChatServerThread> entry : connections.entrySet()) {
-            entry.getValue().close();
-        }
+        for (ChatServerThread connection : connections.values())
+            connection.close(false);
 
         server.close();
         chatServerCommandLine.close();

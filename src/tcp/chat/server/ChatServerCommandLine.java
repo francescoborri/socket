@@ -27,8 +27,7 @@ public class ChatServerCommandLine extends Thread {
                 cmd = scanner.nextLine();
                 manage(cmd);
             } while (!cmd.equals("shutdown") && !Thread.interrupted());
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        } catch (IOException ignored) {
         }
     }
 
