@@ -14,10 +14,14 @@ public class ChatClientReader extends Thread {
         try {
             while (!Thread.interrupted()) {
                 String message = chatClient.receive();
-                if (message == null)
-                    break;
+                if (message == null) break;
                 System.out.printf("\r%s\n%s", message, chatClient.getPrefix());
             }
+        } catch (IOException ignored) {
+        }
+
+        try {
+            chatClient.disconnect();
         } catch (IOException ignored) {
         }
     }

@@ -11,6 +11,8 @@ public class ChatClient {
     private final Socket socket;
     private final BufferedReader in;
     private final PrintWriter out;
+    private final ChatClientReader reader;
+    private final ChatClientWriter writer;
     private final String name;
     private final String prefix;
 
@@ -19,11 +21,13 @@ public class ChatClient {
         socket.connect(new InetSocketAddress(serverAddress, serverPort));
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
+        reader = new ChatClientReader(this);
+        writer = new ChatClientWriter(this);
         this.name = name;
         prefix = "[you]: ";
 
-        new ChatClientReader(this).start();
-        new ChatClientWriter(this).start();
+        reader.start();
+        writer.start();
 
         send(name);
     }
@@ -37,6 +41,8 @@ public class ChatClient {
     }
 
     public void disconnect() throws IOException {
+        reader.interrupt();
+        writer.interrupt();
         socket.shutdownOutput();
         socket.close();
     }

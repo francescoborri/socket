@@ -30,10 +30,15 @@ public class ChatServerThread extends Thread {
     }
 
     public void run() {
-        try {
-            String last = receive();
-            close();
+        String last = null;
 
+        try {
+            last = receive();
+        } catch (IOException ignored) {
+        }
+
+        try {
+            close();
             if (last != null && last.equals("shutdown"))
                 server.getChatServerCommandLine().manage(last);
         } catch (IOException ignored) {
