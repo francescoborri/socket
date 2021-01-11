@@ -2,6 +2,10 @@ package tcp.daytime;
 
 import java.io.*;
 import java.net.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class DaytimeClient {
     private final InetSocketAddress serverSocketAddress;
@@ -15,8 +19,12 @@ public class DaytimeClient {
         socket = new Socket();
         in = null;
         out = null;
-        timeout = 1000;
+        timeout = 0;
         socket.setSoTimeout(timeout);
+    }
+
+    private String getTime() {
+        return LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
     }
 
     public void connect() throws IOException {
@@ -36,10 +44,15 @@ public class DaytimeClient {
         socket.close();
     }
 
-    public String get(String request) throws IOException {
+    public void sendReceive(String request) throws IOException {
+        sendReceive(request, false);
+    }
+
+    public void sendReceive(String request, boolean printTime) throws IOException {
         if (!socket.isConnected())
             throw new IOException();
         out.println(request);
-        return in.readLine();
+        if (printTime) System.out.printf("[client] %s(%s) -> %s(%s)\n", request, getTime(), in.readLine(), getTime());
+        else System.out.printf("[client] %s -> %s\n", request, in.readLine());
     }
 }

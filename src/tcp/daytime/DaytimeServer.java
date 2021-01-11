@@ -20,12 +20,12 @@ public class DaytimeServer extends Thread {
         while (!Thread.interrupted()) {
             try {
                 Socket socket = server.accept();
-                DaytimeServerThread clientThread = new DaytimeServerThread(socket.getRemoteSocketAddress().toString(), this, socket);
-                connections.put((InetSocketAddress) socket.getRemoteSocketAddress(), clientThread);
 
-                System.out.printf("[SERVER] NEW CLIENT -> [%s:%d]\n", socket.getInetAddress().getCanonicalHostName(), socket.getPort());
+                System.out.printf("[server] new client -> %s:%d\n", socket.getInetAddress().getCanonicalHostName(), socket.getPort());
 
-                clientThread.start();
+                DaytimeServerThread daytimeServerThread = new DaytimeServerThread(socket.getRemoteSocketAddress().toString(), this, socket);
+                connections.put((InetSocketAddress) socket.getRemoteSocketAddress(), daytimeServerThread);
+                daytimeServerThread.start();
             } catch (IOException ignored) {
             }
         }

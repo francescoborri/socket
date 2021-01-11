@@ -1,12 +1,18 @@
 package tcp.daytime;
 
+import udp.multiecho.Server;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 
 public class DaytimeServerThread extends Thread {
     private final DaytimeServer server;
@@ -30,49 +36,59 @@ public class DaytimeServerThread extends Thread {
 
             close();
 
-            if (last != null && last.equals("CLOSE_SERVER"))
+            if (last != null && last.equals("shutdown"))
                 server.close();
-        } catch (IOException exception) {
+        } catch (IOException | InterruptedException exception) {
             exception.printStackTrace();
         }
     }
 
-    public String readUntilStop() throws IOException {
+    public String readUntilStop() throws IOException, InterruptedException {
         String request, reply;
 
         do {
             request = in.readLine();
             reply = manage(request);
             write(reply);
-        } while (request != null && !request.equals("CLOSE_CONNECTION") && !request.equals("CLOSE_SERVER"));
+        } while (request != null && !request.equals("close") && !request.equals("shutdown"));
 
         return request;
     }
 
-    public String manage(String request) {
-        String reply;
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    public String manage(String request) throws InterruptedException {
+        String reply = null;
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").localizedBy(Locale.ITALY);
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss").localizedBy(Locale.ITALY);
 
         if (request == null)
             return null;
 
-        switch (request) {
-            case "DATE":
-                reply = dateFormatter.format(LocalDateTime.now());
-                break;
-            case "TIME":
-                reply = timeFormatter.format(LocalDateTime.now());
-                break;
-            case "CLOSE_CONNECTION":
-                reply = "CLOSING CONNECTION...";
-                break;
-            case "CLOSE_SERVER":
-                reply = "CLOSING SERVER...";
-                break;
-            default:
-                reply = "UNKNOWN REQUEST";
-                break;
+        if (request.startsWith("day_of_week ")) {
+            reply = LocalDate.parse(request.split(" ")[1], dateFormatter).getDayOfWeek()
+                        .getDisplayName(TextStyle.FULL, Locale.ITALY).toLowerCase(Locale.ROOT);
+        } else if (request.startsWith("ping ")) {
+            sleep(Integer.parseInt(request.split(" ")[1]));
+            reply = "pong";
+        }
+
+        if (reply == null) {
+            switch (request) {
+                case "date":
+                    reply = dateFormatter.format(LocalDateTime.now());
+                    break;
+                case "time":
+                    reply = timeFormatter.format(LocalDateTime.now());
+                    break;
+                case "close":
+                    reply = "closing connection...";
+                    break;
+                case "shutdown":
+                    reply = "shutting down server...";
+                    break;
+                default:
+                    reply = "unknown request";
+                    break;
+            }
         }
 
         return reply;
